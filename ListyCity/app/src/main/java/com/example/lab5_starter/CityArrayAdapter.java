@@ -22,6 +22,8 @@ public class CityArrayAdapter extends ArrayAdapter<City> {
         this.context = context;
     }
 
+
+
     @NonNull
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent){
         View view = convertView;

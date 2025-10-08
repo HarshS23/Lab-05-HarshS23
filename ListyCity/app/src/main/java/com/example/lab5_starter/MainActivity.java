@@ -13,7 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 
-import com.google.firebase.Firebase;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -47,6 +47,16 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
         });
 
 
+
+        // Set views
+        addCityButton = findViewById(R.id.buttonAddCity);
+        cityListView = findViewById(R.id.listviewCities);
+
+        // create city array
+        cityArrayList = new ArrayList<>();
+        cityArrayAdapter = new CityArrayAdapter(this, cityArrayList);
+        cityListView.setAdapter(cityArrayAdapter);
+
         // Data base variables
         db = FirebaseFirestore.getInstance();
         citiesRef = db.collection("cities");
@@ -69,17 +79,7 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
             }
         });
 
-
-        // Set views
-        addCityButton = findViewById(R.id.buttonAddCity);
-        cityListView = findViewById(R.id.listviewCities);
-
-        // create city array
-        cityArrayList = new ArrayList<>();
-        cityArrayAdapter = new CityArrayAdapter(this, cityArrayList);
-        cityListView.setAdapter(cityArrayAdapter);
-
-        addDummyData();
+        //addDummyData();
 
         // set listeners
         addCityButton.setOnClickListener(view -> {
@@ -97,11 +97,25 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
 
     @Override
     public void updateCity(City city, String title, String year) {
+
+        String oldName = city.getName();
+
+
         city.setName(title);
         city.setProvince(year);
         cityArrayAdapter.notifyDataSetChanged();
 
         // Updating the database using delete + addition
+
+        citiesRef.document(oldName).delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "City successfully updated!");
+                    citiesRef.document(city.getName()).set(city);
+                })
+                .addOnFailureListener(aVoid ->{
+                    Log.e("Firestore", "Error updating city");
+                });
+
     }
 
     @Override
@@ -111,14 +125,16 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
 
 
         DocumentReference docRef = citiesRef.document(city.getName());
-        docRef.set(city);
+        docRef.set(city)
+                .addOnSuccessListener(aVoid -> Log.d("FireStore", "city added"))
+                .addOnFailureListener(aVoid -> Log.e("FireStore", "Error adding City"));
     }
 
-    public void addDummyData(){
-        City m1 = new City("Edmonton", "AB");
-        City m2 = new City("Vancouver", "BC");
-        cityArrayList.add(m1);
-        cityArrayList.add(m2);
+
+
+    public void deleteCity(City city){
+        cityArrayList.remove(city);
         cityArrayAdapter.notifyDataSetChanged();
+        citiesRef.document(city.getName()).delete();
     }
 }
