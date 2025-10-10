@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
             }
         });
 
-        //addDummyData();
 
         // set listeners
         addCityButton.setOnClickListener(view -> {
@@ -106,17 +105,16 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
         cityArrayAdapter.notifyDataSetChanged();
 
         // Updating the database using delete + addition
-
-        citiesRef.document(oldName).delete()
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("Firestore", "City successfully updated!");
-                    citiesRef.document(city.getName()).set(city);
-                })
-                .addOnFailureListener(aVoid ->{
-                    Log.e("Firestore", "Error updating city");
-                });
+        citiesRef.document(oldName).delete();
 
     }
+
+    //  .addOnSuccessListener(aVoid -> {Log.d("Firestore", "City Updated");
+    //                    citiesRef.document(city.getName()).set(city);
+    //                })
+
+    // .addOnFailureListener(aVoid ->{Log.e("Firestore", "Error Updating City");
+    //                });
 
     @Override
     public void addCity(City city){
